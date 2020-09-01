@@ -122,7 +122,7 @@ class Uniform:
             self._program_id, self._location, gl_getter, c_array, length
         )
         self.setter = Uniform._create_setter_func(
-            self._location, gl_setter, c_array, length, count, ptr, is_matrix
+            self._location, gl_setter, c_array, length, self.array_length, count, ptr, is_matrix
         )
 
     @staticmethod
@@ -146,7 +146,7 @@ class Uniform:
 
     @staticmethod
     def _create_setter_func(
-        location, gl_setter, c_array, length, count, ptr, is_matrix
+        location, gl_setter, c_array, length, array_length, count, ptr, is_matrix
     ):
         """ Create setters for OpenGL data. """
         if is_matrix:
@@ -161,14 +161,14 @@ class Uniform:
             def setter_func(value):  # type: ignore #conditional function variants must have identical signature
                 """ Set OpenGL uniform data value. """
                 c_array[0] = value
-                gl_setter(location, count, ptr)
+                gl_setter(location, array_length, ptr)
 
         elif length > 1 and count == 1:
 
             def setter_func(values):  # type: ignore #conditional function variants must have identical signature
                 """ Set list of OpenGL uniform data. """
                 c_array[:] = values
-                gl_setter(location, count, ptr)
+                gl_setter(location, array_length, ptr)
 
         else:
             raise NotImplementedError("Uniform type not yet supported.")
